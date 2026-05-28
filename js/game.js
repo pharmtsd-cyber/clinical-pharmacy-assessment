@@ -606,11 +606,12 @@ function renderQuestionButtons(q, node) {
              const scanBtn = document.createElement('button');
              scanBtn.className = 'btn btn-scan';
              scanBtn.innerHTML = '📷 啟動相機掃描答案';
-             scanBtn.onclick = () => {
-                showConfirm('啟動確認', '準備好要掃描藥品條碼了嗎？', () => {
-                   startScanner(q, node);
-                });
-             };
+scanBtn.onclick = () => {
+    showConfirm('啟動確認', '準備好要掃描藥品條碼了嗎？', () => {
+        window.currentScanCallback = (decodedText) => checkAnswer(decodedText, q, node);
+        ScannerModule.startLiveScan(window.currentScanCallback);
+    });
+};
              area.appendChild(scanBtn);
              return;
          }
