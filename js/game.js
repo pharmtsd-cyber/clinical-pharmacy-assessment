@@ -266,6 +266,11 @@ function renderLobby() {
                 li.innerHTML = `<span class="status-icon">✅</span> ${nodeName}${infoStr}`;
                 li.onclick = () => {
                     if (REVIEW_MODE) renderNode(nodeId);
+                    else if (IS_TEST_MODE) {
+                        AppModal.showConfirm('🛠️ 測試員選項', '本題已完成，是否要重置作答與扣分紀錄，並重新挑戰一次？', () => {
+                            resetNodeForTest(nodeId);
+                        });
+                    }
                     else AppModal.showAlert('已完成', '本關卡已通過，請繼續挑戰下一關！');
                 };
             } else if (isUnlocked && !REVIEW_MODE) {
@@ -503,16 +508,34 @@ function renderNode(nodeId) {
     }
 
     if (IS_TEST_MODE) {
-        const testBtn = document.createElement('button');
-        testBtn.className = 'btn';
-        testBtn.style.cssText = 'background: #000000; color: #00ff00; border: none; margin-top: 30px; font-weight: bold; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.3);';
-        testBtn.innerText = '🛠️ [測試員專用] 無視規則，強制返回大廳';
-        testBtn.onclick = () => {
-            // 測試員強制跳出時，也默默存檔一下進度，但不判定為結束
+        const testToolbar = document.createElement('div');
+        testToolbar.style.cssText = 'margin-top: 30px; padding: 15px; background: #343a40; border-radius: 8px; text-align: center; border: 2px dashed #ffc107;';
+        
+        const titleSpan = document.createElement('div');
+        titleSpan.style.cssText = 'color: #ffc107; font-weight: bold; margin-bottom: 10px; font-size: 0.95rem;';
+        titleSpan.innerText = '🛠️ 測試員上帝模式工具';
+        testToolbar.appendChild(titleSpan);
+
+        // 按鈕一：重置本題
+        const resetBtn = document.createElement('button');
+        resetBtn.className = 'btn';
+        resetBtn.style.cssText = 'background: #17a2b8; color: white; border: none; margin-bottom: 10px; font-weight: bold; width: 100%;';
+        resetBtn.innerText = '🔄 重置本題狀態 (清除扣分/提示紀錄)';
+        resetBtn.onclick = () => resetNodeForTest(currentNodeId);
+        testToolbar.appendChild(resetBtn);
+
+        // 按鈕二：強制返回大廳
+        const exitBtn = document.createElement('button');
+        exitBtn.className = 'btn';
+        exitBtn.style.cssText = 'background: #dc3545; color: white; border: none; font-weight: bold; width: 100%;';
+        exitBtn.innerText = '🚪 無視規則，強制返回大廳';
+        exitBtn.onclick = () => {
             saveCurrentProgress(false); 
             renderLobby();
         };
-        interactionArea.appendChild(testBtn);
+        testToolbar.appendChild(exitBtn);
+
+        interactionArea.appendChild(testToolbar);
     }
 }
 
@@ -966,4 +989,33 @@ function logoutUser() {
         hideAllScreens();
         document.getElementById('login-screen').classList.remove('hidden');
     });
+}
+
+// ==========================================
+// ★ 測試員專用：時光倒流 (重置單一節點紀錄)
+// ==========================================
+function resetNodeForTest(id) {
+    if (!IS_TEST_MODE) return;
+    
+    // 1. 從已完成清單中移除
+    completedNodes = completedNodes.filter(n => n !== id);
+    
+    // 2. 退回答錯的扣分 (因為 deduct 是負數，所以用減的來補回分數)
+    if (nodeScoreDeductions[id]) {
+        score -= nodeScoreDeductions[id];
+        delete nodeScoreDeductions[id];
+    }
+    
+    // 3. 清除提示罰秒與作答時間
+    delete nodeTimings[id];
+    if (nodePenalties[id]) {
+        penaltyTime -= nodePenalties[id];
+        delete nodePenalties[id];
+    }
+    delete usedHints[id];
+    
+    // 4. 更新畫面並重新載入該節點
+    updateDisplay();
+    saveCurrentProgress(false);
+    renderNode(id);
 }
