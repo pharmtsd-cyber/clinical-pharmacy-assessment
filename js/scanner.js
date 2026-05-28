@@ -5,13 +5,9 @@ let isScanProcessing = false;
 
 const ScannerModule = {
     init: function() {
-        const fileInput = document.getElementById('qr-input-file');
-        if (fileInput) {
-            fileInput.onchange = this.handleFileUpload.bind(this);
-        }
+        // 已移除備用的圖片上傳綁定
     },
 
-    // 啟動活體相機
     startLiveScan: function(onSuccessCallback) {
         if (isScannerRunning) return;
         document.getElementById('scanner-wrapper').classList.remove('hidden');
@@ -19,7 +15,7 @@ const ScannerModule = {
 
         if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
 
-        // ★ 針對一維藥品條碼優化：設定長方形掃描框，強迫使用者對準
+        // 針對一維藥品條碼優化：長方形掃描框
         const config = { fps: 10, qrbox: { width: 280, height: 120 } };
 
         html5QrCode.start(
@@ -34,57 +30,9 @@ const ScannerModule = {
             isScannerRunning = true;
         }).catch(err => {
             isScannerRunning = false;
-            showAlert("相機啟動受限", "請點選下方的「拍照掃描」按鈕繼續任務。");
+            // ★ 統一呼叫新的 AppModal
+            AppModal.showAlert("相機啟動受限", "請確認瀏覽器已允許存取相機權限。");
         });
-    },
-
-    // 處理拍照上傳與圖片壓縮 (解決高畫素找不到條碼的問題)
-    handleFileUpload: function(e) {
-        if (e.target.files.length === 0) return;
-        const file = e.target.files[0];
-        const btnText = document.getElementById('btn-photo-scan');
-        const originalText = btnText.innerText;
-        btnText.innerText = "⏳ 圖片壓縮與解析中...";
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-                const MAX_WIDTH = 1000; // 壓縮寬度，利於一維條碼辨識
-                let width = img.width;
-                let height = img.height;
-                if (width > MAX_WIDTH) {
-                    height = Math.round((height * MAX_WIDTH) / width);
-                    width = MAX_WIDTH;
-                }
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-
-                canvas.toBlob((blob) => {
-                    const compressedFile = new File([blob], file.name, { type: file.type });
-                    if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-                    
-                    html5QrCode.scanFile(compressedFile, true)
-                        .then(decodedText => {
-                            btnText.innerText = originalText;
-                            e.target.value = ""; 
-                            if (isScanProcessing) return;
-                            isScanProcessing = true;
-                            this.closeScanner().then(() => window.currentScanCallback(decodedText));
-                        })
-                        .catch(err => {
-                            btnText.innerText = originalText;
-                            e.target.value = "";
-                            showAlert("解析失敗", "壓縮後仍找不到條碼，請確認條碼清晰且無反光。");
-                        });
-                }, file.type, 0.9);
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
     },
 
     closeScanner: function() {
