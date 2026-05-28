@@ -1,0 +1,195 @@
+      :root {
+        --bg-color: #f4f6f8;
+        --card-bg: #ffffff;
+        --primary-color: #003366; --accent-color: #2c7be5;
+        --success-color: #28a745; --danger-color: #dc3545;
+        --locked-color: #adb5bd; --text-color: #2c3e50;
+        --border-radius: 8px;
+        --shadow: 0 4px 12px rgba(0,0,0,0.15);
+      }
+
+      body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-color);
+        color: var(--text-color); margin: 0; padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 100vh;
+      }
+      .container { width: 100%; max-width: 600px; background-color: var(--card-bg); border-radius: var(--border-radius); box-shadow: var(--shadow);
+        border-top: 6px solid var(--primary-color); padding: 30px; position: relative; text-align: left;
+      }
+      
+      .header-bar { border-bottom: 2px solid #f0f0f0; padding-bottom: 15px;
+        margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+      .header-title { font-size: 1.2rem; font-weight: 700;
+        color: var(--primary-color); }
+      .user-detail { font-size: 0.85rem; color: #666; margin-top: 2px;
+      }
+      .status-badge { background: #e9ecef; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; color: #495057;
+        display: inline-block; }
+      
+      .content-area { line-height: 1.8; font-size: 1rem;
+        margin-bottom: 20px; color: #4a4a4a; }
+      .media-container { width: 100%; background: #000; margin-bottom: 20px; display: flex;
+        align-items: center; justify-content: center; border-radius: 6px; overflow: hidden; }
+      .media-container img { width: 100%;
+        height: auto; display: block; }
+      .media-container iframe { width: 100%; aspect-ratio: 16/9; border: none;
+      }
+
+      /* 成績單 */
+      .result-card { background: #f0f7ff;
+        border: 2px solid #cce5ff; border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 20px;
+      }
+      .result-school { font-size: 1.1rem; color: #004085; font-weight: bold; margin-bottom: 5px;
+      }
+      .result-name { font-size: 1rem; color: #555; margin-bottom: 15px;
+      }
+      .result-stats { display: flex; justify-content: space-around; margin-top: 10px; align-items: flex-start;
+      }
+      .stat-item { display: flex; flex-direction: column; width: 45%;
+      }
+      .stat-label { font-size: 0.85rem; color: #666;
+      }
+      .stat-value { font-size: 2rem; font-weight: bold; color: var(--accent-color);
+      }
+      .stat-value.score { color: #d63384;
+      }
+      
+      .rank-badge { background: #ffc107; color: #856404;
+        padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 1rem; margin-top: 15px; display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+
+      /* 排行榜 */
+      .leaderboard-box { background: #fff8e1;
+        border: 2px solid #ffecb3; padding: 15px; border-radius: 8px; margin-top: 20px; }
+      .leaderboard-title { text-align: center;
+        font-weight: bold; color: #f57f17; margin-bottom: 10px; font-size: 1.1rem; }
+      .rank-table { width: 100%; border-collapse: collapse;
+        font-size: 0.9rem; }
+      .rank-table th { text-align: left; border-bottom: 2px solid #ffe082; padding: 5px;
+        color: #f57f17; }
+      .rank-table td { border-bottom: 1px solid #fff3cd; padding: 8px 5px;
+      }
+      .rank-1 { font-weight: bold; color: #d84315;
+      }
+
+      /* 任務列表 */
+      .task-group { margin-bottom: 15px;
+        border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
+      .task-header { background: #f8f9fa; padding: 15px;
+        cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: var(--primary-color);
+      }
+      .task-list { display: none; background: white; padding: 0; margin: 0; list-style: none;
+      }
+      .task-group.open .task-list { display: block; border-top: 1px solid #e0e0e0;
+      }
+      .level-item { padding: 12px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center;
+        justify-content: space-between; cursor: pointer; }
+      .level-item.completed { color: var(--success-color); background: #fafffb;
+      }
+      .level-item.active { background: #fff; color: var(--accent-color); font-weight: bold; border-left: 4px solid var(--accent-color);
+      }
+      .level-item.locked { color: var(--locked-color); background: #f9f9f9; pointer-events: none;
+      }
+      
+      .info-text { font-size: 0.8rem; color: #666; margin-left: 5px;
+      }
+      .penalty-time { color: #e67e22; font-weight: bold;
+      }
+      .deduct-score { color: #dc3545; font-weight: bold;
+      }
+
+      /* 回顧模式 */
+      .review-stats-board { background: #f8f9fa;
+        border-left: 5px solid #28a745; padding: 15px; margin-bottom: 20px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column;
+        gap: 5px; }
+      .review-stat-row { display: flex; justify-content: space-between; align-items: center;
+      }
+      .review-stat-value { font-weight: bold; color: #333; font-size: 1.1rem; margin-left: 5px;
+      }
+      .btn-review-disabled { cursor: default; opacity: 0.7; background-color: #f1f3f5; border: 1px solid #dee2e6; pointer-events: none;
+      }
+      .btn-review-correct { border: 2px solid #28a745 !important; background-color: #e6ffec !important; color: #155724 !important;
+        font-weight: bold; position: relative; opacity: 1 !important; }
+      .btn-review-correct::after { content: '★ 正確解答'; position: absolute;
+        right: 15px; font-size: 0.85rem; color: #28a745; }
+
+      .btn { display: block; width: 100%; padding: 15px;
+        margin: 10px 0; background: var(--card-bg); border: 2px solid #e9ecef; color: var(--accent-color); border-radius: 6px; cursor: pointer; text-align: center; font-weight: bold;
+        transition: all 0.2s; }
+      .btn-primary { background: var(--primary-color); color: white; border: none;
+      }
+      .btn-final { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff; border: none; font-size: 1.1rem;
+        box-shadow: 0 4px 15px rgba(253, 160, 133, 0.4); }
+      .btn-hint { background-color: #ffc107; color: #856404;
+        border: 1px solid #ffeeba; font-weight: bold; font-size: 0.9rem; padding: 8px 15px; border-radius: 20px; cursor: pointer; display: inline-flex; align-items: center;
+        margin-left: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+      .btn-hint:hover { background-color: #ffca2c;
+      }
+      .btn-intro { background: #17a2b8; color: white; border: none; animation: pulse 2s infinite;
+      }
+      
+      /* 掃描按鈕樣式 */
+      .btn-scan { background: #17a2b8;
+        color: white; border: none; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 10px;
+      }
+      .btn-scan:hover { background: #138496;
+      }
+
+/* ★ 錦囊庫按鈕與清單樣式 */
+      .btn-side-quest { margin-left: auto; margin-bottom: 15px; width: fit-content; background: #6f42c1; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 5px; }
+      .btn-side-quest:hover { background: #5a32a3; }
+      .sq-list-btn { width: 100%; padding: 12px; margin-bottom: 10px; background: #f8f9fa; border: 2px solid #6f42c1; color: #6f42c1; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: left; }
+      .sq-list-btn.completed { background: #e9ecef; border-color: #adb5bd; color: #6c757d; }
+      
+      /* 掃描視窗樣式 */
+      #scanner-container { width: 100%;
+        max-width: 400px; margin: 0 auto; background: #000; position: relative; }
+      #reader { width: 100%;
+      }
+
+      .hidden { display: none !important;
+      }
+      .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 30px;
+        height: 30px; animation: spin 1s linear infinite; margin: 20px auto;
+      }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);
+      } }
+      
+      /* 防止手機輸入自動縮放 (字體設為 16px) */
+      input[type="text"], 
+      input[type="password"], 
+      input[type="number"],
+      select, 
+      textarea { 
+        width: 100%;
+        padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 15px;
+        font-size: 16px !important;
+      }
+      
+      /* 管理後台 */
+      .admin-btn-float { position: fixed;
+        bottom: 10px; right: 10px; background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; opacity: 0.5;
+        cursor: pointer; }
+      .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem;
+      }
+      .admin-table th { background: #343a40; color: white; padding: 8px; text-align: left;
+      }
+      .admin-table td { border-bottom: 1px solid #ddd; padding: 8px;
+      }
+      .btn-del { background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px;
+        cursor: pointer; font-size: 0.8rem; }
+      .add-form { display: grid; grid-template-columns: 1fr 1fr 1fr auto;
+        gap: 10px; background: #e9ecef; padding: 15px; border-radius: 6px; margin-bottom: 20px;
+        align-items: end;}
+      
+      .modal-overlay { position: fixed; top: 0;
+        left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px);
+      }
+      .modal-box { background: white; padding: 25px; border-radius: 12px; width: 85%; max-width: 400px; display: flex;
+        flex-direction: column; animation: popIn 0.3s ease; }
+      .modal-footer { display: flex; justify-content: flex-end; gap: 10px;
+        margin-top:20px; }
+      .btn-modal { width: auto; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer;
+      }
+      .btn-confirm { background: var(--primary-color); color: white;
+      }
+      .btn-cancel { background: #e9ecef; color: #495057;
+      }
