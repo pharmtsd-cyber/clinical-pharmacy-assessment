@@ -17,6 +17,7 @@ let nodePenalties = {};
 let nodeScoreDeductions = {};
 let usedHints = {};
 let REVIEW_MODE = false;
+let IS_TEST_MODE = false; // ★ 測試員上帝模式開關
 let timerInterval = null;
 let isTimerRunning = false;
 let hintsUsed = 0;
@@ -114,6 +115,8 @@ function checkLogin() {
     if(!inputId) { AppModal.showAlert('錯誤', '請輸入員工編號'); return; }
     
     studentId = inputId;
+
+    IS_TEST_MODE = (studentId.toUpperCase() === '12700');
     
     // ★ 將學號存在瀏覽器，防手滑重新整理
     localStorage.setItem('clinical_eval_student_id', studentId);
@@ -209,7 +212,7 @@ function renderLobby() {
          container.appendChild(banner);
     }
 
-    const isIntroDone = completedNodes.includes('Start_01');
+    const isIntroDone = completedNodes.includes('Start_01')|| IS_TEST_MODE;
     if (!isIntroDone && !REVIEW_MODE) {
         container.classList.add('hidden');
         lockMsg.classList.remove('hidden');
@@ -251,7 +254,7 @@ function renderLobby() {
             const li = document.createElement('li');
             const nodeName = getQuestionTitle(nodeId);
             const isDone = completedNodes.includes(nodeId);
-            const isUnlocked = nIdx === 0 || completedNodes.includes(route.nodes[nIdx-1]);
+            const isUnlocked = nIdx === 0 || completedNodes.includes(route.nodes[nIdx-1]) || IS_TEST_MODE;
             
             let infoStr = "";
             if (nodeTimings[nodeId]) infoStr += ` <span class="info-text">(${Math.round(nodeTimings[nodeId])}s)</span>`;
@@ -497,6 +500,19 @@ function renderNode(nodeId) {
         }
         backBtn.onclick = () => { if (lastMainNodeId) renderNode(lastMainNodeId); else renderLobby(); };
         interactionArea.appendChild(backBtn);
+    }
+
+    if (IS_TEST_MODE) {
+        const testBtn = document.createElement('button');
+        testBtn.className = 'btn';
+        testBtn.style.cssText = 'background: #000000; color: #00ff00; border: none; margin-top: 30px; font-weight: bold; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.3);';
+        testBtn.innerText = '🛠️ [測試員專用] 無視規則，強制返回大廳';
+        testBtn.onclick = () => {
+            // 測試員強制跳出時，也默默存檔一下進度，但不判定為結束
+            saveCurrentProgress(false); 
+            renderLobby();
+        };
+        interactionArea.appendChild(testBtn);
     }
 }
 
