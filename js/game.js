@@ -1,6 +1,6 @@
 
       const ENDING_RULES = { S_SCORE: 160, S_TIME: 600, A_SCORE: 120 };
- let ROUTE_CONFIG = [];
+      let ROUTE_CONFIG = [];
       let gameData = {};
       let currentNodeId = 'Start_01';
       let lastMainNodeId = null; // ★ 記錄錦囊切換
@@ -9,19 +9,16 @@
       let score = 100;
       let pathHistory = []; completedNodes = [];
       let gameStartTime = null;
- let nodeStartTime = 0;    
+      let nodeStartTime = 0;    
       let penaltyTime = 0;      
       let nodeTimings = {};
       let nodePenalties = {}; 
       let nodeScoreDeductions = {};
- let usedHints = {};
+      let usedHints = {};
       let REVIEW_MODE = false;
       let timerInterval = null;
       let isTimerRunning = false;
       let hintsUsed = 0;
- let html5QrCode = null;
-      let isScanProcessing = false; 
-      let isScannerRunning = false; 
       let loadedTime = 0;
       const MAX_HINTS = 99;
  window.onload = function() {
