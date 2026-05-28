@@ -9,6 +9,144 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   </head>
   <body>
+
+    <div class="container">
+      <div class="header-bar">
+        <div>
+           <div class="header-title">臨床藥學評估</div>
+           <div id="user-info-display" class="user-detail"></div>
+           <div id="user-school-display" class="user-detail" style="font-weight:bold;"></div>
+        </div>
+        <div style="text-align:right;">
+           <span class="status-badge">Time: <span id="timer-display">00:00</span></span>
+          <div style="margin-top:5px;"><span class="status-badge">Score: <span id="score-display">0</span></span></div>
+        </div>
+      </div>
+
+      <div id="loading" style="text-align:center;"><div class="loader"></div><p>資料讀取中...</p></div>
+
+      <div id="login-screen" class="hidden">
+        <h2>員工登入</h2>
+        <input type="text" id="student-id" placeholder="請輸入員工編號">
+        <button class="btn btn-primary" onclick="checkLogin()">登入</button>
+      </div>
+
+      <div id="admin-login-modal" class="hidden modal-overlay">
+        <div class="modal-box" style="width:300px;">
+          <div class="modal-header">後台管理登入</div>
+          <input type="password" id="admin-pwd-input" placeholder="請輸入管理密碼">
+          <div class="modal-footer">
+            <button class="btn-modal btn-cancel" onclick="closeAdminLogin()">取消</button>
+            <button class="btn-modal btn-confirm" onclick="doAdminLogin()">登入</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="admin-screen" class="hidden">
+         <div class="header-bar">
+            <div class="header-title">⚙️ 員工名單維護</div>
+            <button class="btn-modal btn-cancel" onclick="logoutAdmin()">登出返回</button>
+         </div>
+         <div class="add-form">
+            <div><label>員工編號</label><input type="text" id="new-id" placeholder="例: P999"></div>
+            <div><label>姓名</label><input type="text" id="new-name" placeholder="例: 王小美"></div>
+            <div><label>學校/單位</label><input type="text" id="new-school" placeholder="例: 台大藥學"></div>
+            <div><button class="btn btn-primary" style="margin:0; padding:8px 15px;" onclick="addEmployee()">新增</button></div>
+         </div>
+         <div style="max-height: 60vh; overflow-y: auto;">
+            <table class="admin-table">
+               <thead><tr><th>編號</th><th>姓名</th><th>學校/單位</th><th>操作</th></tr></thead>
+               <tbody id="admin-tbody"></tbody>
+            </table>
+         </div>
+      </div>
+      <button id="btn-admin-entry" class="admin-btn-float" onclick="openAdminLogin()">Admin</button>
+
+      <div id="lobby-screen" class="hidden">
+        <div id="task-container"></div>
+        <div id="intro-lock-msg" class="intro-lock-msg hidden">
+           <h3>⚠️ 尚未解鎖</h3>
+           <p>請先觀看開場任務 (Intro) 以了解評估規則。</p>
+           <button class="btn btn-intro" onclick="reviewIntro()">▶ 開始開場任務</button>
+        </div>
+        <button id="btn-final-ending" class="btn btn-final hidden" onclick="calculateAndShowEnding()">🏆 查看最終評估結果</button>
+        <button id="btn-review-back" class="btn hidden" style="background:#6c757d; color:white; border:none; margin-top:20px;" onclick="calculateAndShowEnding()">📊 返回成績單</button>
+        <button id="btn-review-intro" class="btn hidden" style="background:#17a2b8; color:white; border:none; margin-top:10px;" onclick="reviewIntro()">📺 回顧開場任務</button>
+      </div>
+
+      <div id="game-screen" class="hidden">
+        <button id="btn-open-sq" class="btn-side-quest hidden" onclick="openSideQuestSelector()">💡 錦囊庫</button>
+        <div id="review-banner" class="hidden"></div>
+        <div class="media-container hidden" id="media-box"></div> 
+        <h2 id="node-title">標題</h2>
+        <div id="node-desc" class="content-area">敘述</div>
+        <div id="hint-area" class="hidden" style="margin-bottom:20px; background:#fff3cd; padding:10px; border-radius:6px; border-left: 4px solid #ffc107;">
+           <span style="font-weight:bold; color:#856404;">💡 提示：</span>
+           <span id="hint-text" style="color:#666;"></span>
+           <button id="btn-use-hint" style="margin-left:10px;" class="btn-hint" onclick="useHint()">使用 (+20s)</button>
+        </div>
+        
+        <div id="scanner-wrapper" class="hidden" style="margin-bottom: 20px;">
+            <div id="scanner-container">
+                <div id="reader"></div>
+            </div>
+            <input type="file" id="qr-input-file" accept="image/*" capture="environment" style="display: none;">
+            <button id="btn-photo-scan" class="btn btn-primary" style="margin-top:10px; background-color: #28a745; border-color: #28a745;" onclick="document.getElementById('qr-input-file').click()">📸 無法啟動相機？點此拍照掃描</button>
+            <button class="btn btn-cancel" style="margin-top:10px;" onclick="ScannerModule.closeScanner()">❌ 關閉相機</button>
+        </div>
+
+        <div id="interaction-area"></div>
+      </div>
+
+      <div id="ending-screen" class="hidden">
+        <div class="result-card">
+           <div id="res-school" class="result-school">學校</div>
+           <div id="res-name" class="result-name">學號 姓名</div>
+           <div id="res-rank-badge" class="rank-badge hidden">第 - 名</div>
+           <div style="border-top:1px dashed #ccc; margin:10px 0;"></div>
+           <div class="result-stats">
+              <div class="stat-item">
+                 <span class="stat-label">最終分數</span>
+                 <span id="res-score" class="stat-value score">0</span>
+                 <div style="font-size:0.85rem; color:#666; margin-top:5px; background:rgba(0,0,0,0.05); padding:4px 8px; border-radius:4px;">
+                    答錯扣分: <span id="res-deduct" style="color:#dc3545; font-weight:bold;">0</span>
+                 </div>
+              </div>
+              <div class="stat-item">
+                 <span class="stat-label">總成績 (耗時)</span>
+                 <span id="res-time" class="stat-value">00:00</span>
+                 <div style="font-size:0.85rem; color:#666; margin-top:5px; background:rgba(0,0,0,0.05); padding:4px 8px; border-radius:4px;">
+                    實際: <span id="res-elapsed" style="font-weight:bold;">00:00</span> + 
+                    提示罰: <span id="res-penalty" style="color:#e67e22; font-weight:bold;">0</span>s
+                 </div>
+              </div>
+           </div>
+        </div>
+        <div class="media-container hidden" id="end-media-box"></div>
+        <h2 id="end-title" style="text-align:center;">評估結果</h2>
+        <p id="end-desc" class="content-area" style="text-align:center;"></p>
+        <div class="leaderboard-box">
+          <div class="leaderboard-title">🏆 歷史紀錄保持人 (Top 3)</div>
+          <table class="rank-table">
+             <thead><tr><th>排名</th><th>姓名</th><th>學校/單位</th><th>分數</th><th>時間</th></tr></thead>
+             <tbody id="rank-tbody"><tr><td colspan="5">載入中...</td></tr></tbody>
+          </table>
+        </div>
+        <button id="btn-review-exam" class="btn btn-primary" style="margin-top:20px;" onclick="enterReviewMode()">📂 回顧試卷 (檢討考卷)</button>
+      </div>
+    </div>
+
+    <div id="custom-modal" class="hidden modal-overlay">
+      <div class="modal-box">
+        <div class="modal-header" id="modal-title" style="font-weight:bold; font-size:1.1rem; margin-bottom:10px; color:var(--primary-color);"></div>
+        <div class="modal-body" id="modal-msg"></div>
+        <div class="modal-footer">
+          <button id="modal-btn-cancel" class="btn-modal btn-cancel hidden">取消</button>
+          <button id="modal-btn-confirm" class="btn-modal btn-confirm">確定</button>
+        </div>
+      </div>
+    </div>
+
     <script src="js/api.js"></script>
     <script src="js/scanner.js"></script>
     <script src="js/game.js"></script>
