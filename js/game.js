@@ -301,37 +301,33 @@ function checkLogin() {
           document.getElementById('res-elapsed').innerText = `${em}:${es}`;
           document.getElementById('res-penalty').innerText = totalPenaltySeconds;
           document.getElementById('res-deduct').innerText = totalDeductScore;
- google.script.run.withSuccessHandler(data => {
+api.getLeaderboard(studentId).then(data => {
               const tbody = document.getElementById('rank-tbody');
               tbody.innerHTML = '';
               
               const rankBadge = document.getElementById('res-rank-badge');
               if(data.userRank !== '-') {
-                 
-  rankBadge.innerText = `🏆 您的排名：第 ${data.userRank} 名 / 共 ${data.total} 人`;
+                  rankBadge.innerText = `🏆 您的排名：第 ${data.userRank} 名 / 共 ${data.total} 人`;
                   rankBadge.classList.remove('hidden');
               } else {
                   rankBadge.classList.add('hidden');
               }
 
               if (data.top3.length === 0) {
-      
-             tbody.innerHTML = '<tr><td colspan="5">尚無紀錄</td></tr>';
+                  tbody.innerHTML = '<tr><td colspan="5">尚無紀錄</td></tr>';
                   return;
               }
               data.top3.forEach((row, idx) => {
                   const rankClass = idx === 0 ? 'rank-1' : '';
-         
-          const tr = document.createElement('tr');
+                  const tr = document.createElement('tr');
                   tr.innerHTML = `<td class="${rankClass}">#${idx+1}</td>
                                   <td class="${rankClass}">${row.name}</td>
-                                
-  <td class="${rankClass}">${row.school}</td>
+                                  <td class="${rankClass}">${row.school}</td>
                                   <td class="${rankClass}">${row.score}</td>
                                   <td>${row.time}</td>`;
- tbody.appendChild(tr);
+                  tbody.appendChild(tr);
               });
-          }).getLeaderboard(studentId); 
+          }).catch(err => console.error("獲取排行榜失敗", err));
           
           const btnBack = document.querySelector('#ending-screen .btn-primary');
           btnBack.innerText = '📂 返回瀏覽試卷與詳解';
