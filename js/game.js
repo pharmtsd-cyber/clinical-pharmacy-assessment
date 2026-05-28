@@ -787,9 +787,8 @@ scanBtn.onclick = () => {
         return totalSeconds;
  }
 
-      function saveCurrentProgress(isEnding) {
-        if (REVIEW_MODE && !isEnding) return;
- // 回顧模式下，如果不適 ending 就不要存
+function saveCurrentProgress(isEnding) {
+        if (REVIEW_MODE && !isEnding) return; 
         
         const data = {
           studentId: studentId, currentNode: currentNodeId, score: score,
@@ -798,13 +797,14 @@ scanBtn.onclick = () => {
           nodeTimings: JSON.stringify(nodeTimings),
           nodePenalties: JSON.stringify(nodePenalties),
           usedHints: JSON.stringify(usedHints),
-     
-      nodeScoreDeductions: JSON.stringify(nodeScoreDeductions),
-          startTime: gameStartTime ?
- gameStartTime.toISOString() : '', 
+          nodeScoreDeductions: JSON.stringify(nodeScoreDeductions),
+          startTime: gameStartTime ? gameStartTime.toISOString() : '', 
           isEnding: isEnding, historyLog: ''
         };
- google.script.run.saveProgress(data);
+        // ★ 替換為呼叫 API
+        api.saveProgress(data).then(res => {
+            console.log("儲存成功", res);
+        }).catch(err => console.error("儲存失敗", err));
       }
 
       function startTimer() { 
