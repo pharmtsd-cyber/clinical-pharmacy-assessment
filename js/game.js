@@ -881,83 +881,84 @@ function saveCurrentProgress(isEnding) {
         m.classList.remove('hidden');
       }
 
-      // 後台管理
+// 後台管理
       let currentAdminPwd = '';
- function openAdminLogin() {
+      function openAdminLogin() {
          hideAllScreens();
- // ★ 清場
          document.getElementById('admin-login-modal').classList.remove('hidden');
          document.getElementById('admin-pwd-input').value = '';
          document.getElementById('admin-pwd-input').focus();
- }
+      }
       function closeAdminLogin() { 
          document.getElementById('admin-login-modal').classList.add('hidden'); 
          document.getElementById('login-screen').classList.remove('hidden');
- }
+      }
       function doAdminLogin() {
          const pwd = document.getElementById('admin-pwd-input').value;
- if (!pwd) return;
+         if (!pwd) return;
          document.getElementById('loading').classList.remove('hidden');
          closeAdminLogin();
-         google.script.run.withSuccessHandler(res => {
+         // ★ 替換 API
+         api.adminGetList(pwd).then(res => {
             document.getElementById('loading').classList.add('hidden');
             if (res.status === 'Success') {
                currentAdminPwd = pwd;
                renderAdminScreen(res.list);
             } else { showAlert('錯誤', res.msg); }
-         }).adminGetList(pwd);
- }
+         }).catch(err => {
+             document.getElementById('loading').classList.add('hidden');
+             showAlert('錯誤', '後台連線失敗');
+         });
+      }
       function renderAdminScreen(list) {
          hideAllScreens();
- // ★ 清場
          document.getElementById('admin-screen').classList.remove('hidden');
          const tbody = document.getElementById('admin-tbody');
          tbody.innerHTML = '';
- list.forEach(row => {
+         list.forEach(row => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td><button class="btn-del" onclick="delEmployee('${row[0]}')">刪除</button></td>`;
             tbody.appendChild(tr);
          });
- }
+      }
       function addEmployee() {
          const id = document.getElementById('new-id').value.trim();
- const name = document.getElementById('new-name').value.trim();
+         const name = document.getElementById('new-name').value.trim();
          const school = document.getElementById('new-school').value.trim();
-         if(!id || !name) { showAlert('錯誤', '編號與姓名為必填'); return;
- }
+         if(!id || !name) { showAlert('錯誤', '編號與姓名為必填'); return; }
          document.getElementById('loading').classList.remove('hidden');
- google.script.run.withSuccessHandler(res => {
+         // ★ 替換 API
+         api.adminAddEmployee(currentAdminPwd, id, name, school).then(res => {
             if(res.status === 'Success') {
                document.getElementById('new-id').value = '';
                document.getElementById('new-name').value = '';
                document.getElementById('new-school').value = '';
                refreshAdminList();
             } else {
-   
-             document.getElementById('loading').classList.add('hidden');
+               document.getElementById('loading').classList.add('hidden');
                showAlert('失敗', res.msg);
             }
-         }).adminAddEmployee(currentAdminPwd, id, name, school);
- }
+         });
+      }
       function delEmployee(id) {
          showConfirm('刪除確認', `確定要刪除員工 ${id} 嗎？`, () => {
             document.getElementById('loading').classList.remove('hidden');
-            google.script.run.withSuccessHandler(res => {
+            // ★ 替換 API
+            api.adminDeleteEmployee(currentAdminPwd, id).then(res => {
                if(res.status === 'Success') refreshAdminList();
                else { document.getElementById('loading').classList.add('hidden'); showAlert('失敗', res.msg); }
-            }).adminDeleteEmployee(currentAdminPwd, 
- id);
+            });
          });
- }
+      }
       function refreshAdminList() {
-         google.script.run.withSuccessHandler(res => {
+         api.adminGetList(currentAdminPwd).then(res => {
             document.getElementById('loading').classList.add('hidden');
             if(res.status === 'Success') renderAdminScreen(res.list);
-         }).adminGetList(currentAdminPwd);
- }
+         });
+      }
       function logoutAdmin() {
          currentAdminPwd = '';
- document.getElementById('admin-screen').classList.add('hidden');
+         document.getElementById('admin-screen').classList.add('hidden');
          document.getElementById('login-screen').classList.remove('hidden');
          document.getElementById('btn-admin-entry').classList.remove('hidden');
       }
