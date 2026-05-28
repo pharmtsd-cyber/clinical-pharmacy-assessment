@@ -59,15 +59,16 @@ api.getGameData().then(data => {
           document.getElementById('admin-screen').classList.add('hidden');
       }
 
-      function checkLogin() {
+function checkLogin() {
         const inputId = document.getElementById('student-id').value.trim();
- if(!inputId) { showAlert('錯誤', '請輸入員工編號'); return; }
+        if(!inputId) { showAlert('錯誤', '請輸入員工編號'); return; }
         
         studentId = inputId;
- document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('loading').classList.remove('hidden');
         document.getElementById('login-screen').classList.add('hidden');
 
-        google.script.run.withSuccessHandler(res => {
+        // ★ 這裡改為呼叫 api.js
+        api.checkUserStatus(studentId).then(res => {
           document.getElementById('loading').classList.add('hidden');
           
           if (res.status === 'Invalid') {
@@ -76,8 +77,7 @@ api.getGameData().then(data => {
           }
 
           userName = res.name;
-          userSchool = 
- res.school;
+          userSchool = res.school;
           document.getElementById('user-info-display').innerText = `${studentId} ${userName}`;
           document.getElementById('user-school-display').innerText = userSchool;
           
@@ -86,54 +86,56 @@ api.getGameData().then(data => {
 
           nodePenalties = JSON.parse(res.nodePenalties || '{}');
           penaltyTime = 0;
-     
-      for (let key in nodePenalties) penaltyTime += (nodePenalties[key] || 0);
+          for (let key in nodePenalties) penaltyTime += (nodePenalties[key] || 0);
 
           pathHistory = JSON.parse(res.path || '[]');
-          completedNodes = JSON.parse(res.completedNodes ||
- '[]');
+          completedNodes = JSON.parse(res.completedNodes || '[]');
           nodeTimings = JSON.parse(res.nodeTimings || '{}');
           usedHints = JSON.parse(res.usedHints || '{}');
           nodeScoreDeductions = JSON.parse(res.nodeScoreDeductions || '{}');
- // ★★★ 核心分流：已完成 vs 未完成 ★★★
+
+          // ★★★ 核心分流：已完成 vs 未完成 ★★★
           if (res.status === 'Finished') {
              REVIEW_MODE = true;
- stopTimer();
+             stopTimer();
              gameStartTime = null; 
              
              let endingNodeId = 'End_Rank_B'; 
              if (score >= ENDING_RULES.S_SCORE && loadedTime < ENDING_RULES.S_TIME) endingNodeId = 'End_Rank_S';
- else if (score >= ENDING_RULES.A_SCORE) endingNodeId = 'End_Rank_A';
+             else if (score >= ENDING_RULES.A_SCORE) endingNodeId = 'End_Rank_A';
              else endingNodeId = 'End_Rank_B';
 
              let node = gameData.nodes.find(n => n.id === endingNodeId);
- if (!node) node = gameData.nodes.find(n => n.id === 'End_Good');
+             if (!node) node = gameData.nodes.find(n => n.id === 'End_Good');
              if (!node) node = { title: '評估結束', description: '恭喜完成。', videoUrl: '' };
- updateDisplay(); 
+             updateDisplay(); 
              renderEndingScreen(node, loadedTime);
           
           } else {
              REVIEW_MODE = false;
- if (res.startTime) { 
+             if (res.startTime) { 
                  gameStartTime = new Date(res.startTime);
- } else { 
+             } else { 
                  gameStartTime = null;
- }
+             }
 
              if (res.status === 'New') {
                  renderNode('Start_01');
- } else {
+             } else {
                  if (!gameStartTime) { 
                      gameStartTime = new Date();
- saveCurrentProgress(false);
+                     saveCurrentProgress(false);
                  }
                  updateDisplay();
                  startTimer();
- renderLobby();
+                 renderLobby();
              }
           }
-        }).checkUserStatus(studentId);
- }
+        }).catch(err => {
+            document.getElementById('loading').classList.add('hidden');
+            showAlert('錯誤', '登入連線失敗：' + err);
+        });
+      }
 
       function renderLobby() {
         hideAllScreens();
