@@ -889,3 +889,65 @@ function logoutAdmin() {
     document.getElementById('login-screen').classList.remove('hidden');
     document.getElementById('btn-admin-entry').classList.remove('hidden');
 }
+
+// ==========================================
+// ★ 新增：無痛更新與登出功能
+// ==========================================
+
+// 1. 背景靜默更新題庫
+function syncGameData() {
+    const btn = document.getElementById('btn-sync-data');
+    const originalText = btn.innerText;
+    btn.innerText = '⏳ 更新中...';
+    btn.disabled = true;
+
+    api.getGameData().then(data => {
+        // 覆蓋記憶體中的題庫與流程
+        gameData = data;
+        ROUTE_CONFIG = data.routes || [];
+        
+        btn.innerText = '✅ 更新成功';
+        setTimeout(() => {
+            btn.innerText = '🔄 更新資料';
+            btn.disabled = false;
+        }, 2000);
+
+        // 如果當前在遊戲畫面，就用新題庫原地重繪一次 (不影響計時與分數)
+        if (!document.getElementById('game-screen').classList.contains('hidden')) {
+            renderNode(currentNodeId);
+        } else if (!document.getElementById('lobby-screen').classList.contains('hidden')) {
+            renderLobby();
+        }
+    }).catch(error => {
+        btn.innerText = '❌ 更新失敗';
+        setTimeout(() => {
+            btn.innerText = '🔄 更新資料';
+            btn.disabled = false;
+        }, 2000);
+        AppModal.showAlert('錯誤', '更新資料失敗，請檢查網路連線。');
+    });
+}
+
+// 2. 徹底登出並清除暫存
+function logoutUser() {
+    AppModal.showConfirm('登出確認', '確定要登出並切換使用者嗎？\n(目前的遊戲進度會自動保存)', () => {
+        // 如果正在遊玩，登出前先存檔
+        if (!REVIEW_MODE && currentNodeId) {
+            saveCurrentProgress(false);
+        }
+        
+        // 停止計時、清空暫存與畫面
+        stopTimer();
+        localStorage.removeItem('clinical_eval_student_id');
+        studentId = '';
+        document.getElementById('student-id').value = '';
+        document.getElementById('btn-logout').classList.add('hidden');
+        document.getElementById('user-info-display').innerText = '';
+        document.getElementById('school-text').innerText = '';
+        document.getElementById('timer-display').innerText = '00:00';
+        document.getElementById('score-display').innerText = '0';
+        
+        hideAllScreens();
+        document.getElementById('login-screen').classList.remove('hidden');
+    });
+}
