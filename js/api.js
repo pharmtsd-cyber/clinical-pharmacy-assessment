@@ -1,6 +1,6 @@
 // js/api.js
 // ★ 請將下方網址替換成您剛剛在 GAS 部署產生的 API 網址
-const API_URL = "https://script.google.com/macros/s/您的網址代碼/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwcpnt6zzIwfFLaU7Sa1erRMRROT2M27IOG4wwu3zLYRPLO5ghPcs3WuCj71LJhji-Zow/exec";
 
 const api = {
     // 讀取資料 (GET)
