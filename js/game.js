@@ -83,7 +83,15 @@ window.onload = function() {
         gameData = data;
         ROUTE_CONFIG = data.routes || []; 
         document.getElementById('loading').classList.add('hidden');
-        document.getElementById('login-screen').classList.remove('hidden');
+        
+        // ★ 更好的辦法：檢查瀏覽器是否記住了這個學員
+        const savedStudentId = localStorage.getItem('clinical_eval_student_id');
+        if (savedStudentId) {
+            document.getElementById('student-id').value = savedStudentId;
+            checkLogin(); // 直接觸發背景自動登入
+        } else {
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
     }).catch(error => {
         clearTimeout(timeout);
         document.getElementById('loading').innerHTML = 
@@ -106,6 +114,10 @@ function checkLogin() {
     if(!inputId) { AppModal.showAlert('錯誤', '請輸入員工編號'); return; }
     
     studentId = inputId;
+    
+    // ★ 將學號存在瀏覽器，防手滑重新整理
+    localStorage.setItem('clinical_eval_student_id', studentId);
+    
     document.getElementById('loading').classList.remove('hidden');
     document.getElementById('login-screen').classList.add('hidden');
 
@@ -113,6 +125,7 @@ function checkLogin() {
         document.getElementById('loading').classList.add('hidden');
         
         if (res.status === 'Invalid') {
+            localStorage.removeItem('clinical_eval_student_id'); // 驗證失敗就清空暫存
             AppModal.showAlert('驗證失敗', res.message, () => document.getElementById('login-screen').classList.remove('hidden'));
             return;
         }
@@ -120,7 +133,8 @@ function checkLogin() {
         userName = res.name;
         userSchool = res.school;
         document.getElementById('user-info-display').innerText = `${studentId} ${userName}`;
-        document.getElementById('user-school-display').innerText = userSchool;
+        document.getElementById('school-text').innerText = userSchool;
+        document.getElementById('btn-logout').classList.remove('hidden'); // 顯示登出按鈕
         
         score = Number(res.score); if (isNaN(score)) score = 100;
         loadedTime = Number(res.totalTime); if (isNaN(loadedTime)) loadedTime = 0;
